@@ -16,6 +16,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -43,29 +44,32 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
             ),),
             const Spacer(),
             Container(
-              width: 220,
+              width: 190,
               margin: const EdgeInsets.only(bottom: 40,),
               alignment: Alignment.center,
-              child: MaterialButton(
+              child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
                 },
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                color: HexColor("#4897FA"),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  backgroundColor: HexColor("#4897FA"),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                ),
                 child:
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
+                  children: const [
+                    Text(
                       "Get started",
                       style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white,
-                          fontFamily: 'solata-bold'
+                          color: Colors.black,
+                          fontFamily: 'publicsans-bold'
                       ),
                     ),
-                    Container(width: 5,),
-                    Image.asset("assets/images/login.png", width: 20, height: 20,),
                   ],
                 ),
               ),
