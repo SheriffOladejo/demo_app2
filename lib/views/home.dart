@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:demo_app2/models/message_adapter.dart';
+import 'package:demo_app2/adapters/message_adapter.dart';
 import 'package:demo_app2/utils/hex_color.dart';
 import 'package:demo_app2/utils/methods.dart';
 import 'package:demo_app2/views/backup.dart';
@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       shrinkWrap: true,
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemBuilder: (context, index){
-                        return const MessageAdapter();
+                        return MessageAdapter();
                       },
                     ),
                   )

@@ -37,7 +37,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 fontSize: 24,
             ),),
             Container(height: 15,),
-            const Text("Edit, backup and schedule SMS messages in easy steps", style: TextStyle(
+            const Text("Send, backup and schedule SMS messages in easy steps", style: TextStyle(
               color: Colors.black,
               fontFamily: 'publicsans-regular',
               fontSize: 16,

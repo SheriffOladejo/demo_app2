@@ -1,4 +1,4 @@
-import 'package:demo_app2/models/message_adapter.dart';
+import 'package:demo_app2/adapters/backup_message_adapter.dart';
 import 'package:demo_app2/utils/hex_color.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +44,7 @@ class _BackupState extends State<Backup> {
         body: const TabBarView(
           children: [
             FirstTab(),
-            FirstTab(),
+            SecondTab(),
           ],
         ),
       ),
@@ -64,85 +64,154 @@ class FirstTab extends StatefulWidget {
 
 class _FirstTabState extends State<FirstTab> {
 
-  int radioValue = 0;
-  int value = 1;
+  bool selectAll = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      child: Column(
-        children: [
-          RadioListTile(
-            title: const Text("Select all",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 12,
-                fontFamily: 'publicsans-bold'),
-            ),
-            value: value,
-            groupValue: radioValue,
-            onChanged: (value){
-              print(value);
-              setState(() {
-                if (radioValue == 1) {
-                  radioValue = 0;
-                }
-                else {
-                  radioValue = value;
-                }
-              });
+    return Column(
+      children: [
+        CheckboxListTile(
+          title: const Text("Select all", style: TextStyle(
+            color: Colors.black,
+            fontSize: 12,
+            fontFamily: 'publicsans-bold',
+          ),),
+          value: selectAll,
+          onChanged: (newValue) {
+            setState(() {
+              selectAll = !selectAll;
+            });
+          },
+          controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
+        ),
+        Container(height: 10,),
+        SizedBox(
+          height: MediaQuery.of(context).size.height - 260,
+          child: ListView.separated(
+            separatorBuilder: (context, index) {
+              return const Divider();
+            },
+            controller: ScrollController(),
+            itemCount: 7,
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemBuilder: (context, index){
+              return BackupMessageAdapter();
             },
           ),
-          Container(height: 10,),
-          SizedBox(
-            height: MediaQuery.of(context).size.height - 270,
-            child: ListView.separated(
-              separatorBuilder: (context, index) {
-                return const Divider();
-              },
-              controller: ScrollController(),
-              itemCount: 7,
-              shrinkWrap: true,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemBuilder: (context, index){
-                return const MessageAdapter();
-              },
-            ),
-          ),
-          MaterialButton(
-            onPressed: () {
+        ),
+        MaterialButton(
+          onPressed: () {
 
-            },
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            ),
-            padding: const EdgeInsets.fromLTRB(70, 10, 70, 10),
-            color: HexColor("#4897FA"),
-            child:
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Backup",
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontFamily: 'publicsans-bold'
-                  ),
+          },
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          padding: const EdgeInsets.fromLTRB(70, 10, 70, 10),
+          color: HexColor("#4897FA"),
+          child:
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Backup",
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontFamily: 'publicsans-bold'
                 ),
-                Container(width: 10,),
-                Image.asset("assets/images/backup_.png", width: 20, height: 20,),
-              ],
-            ),
-          )
-        ],
-      ),
+              ),
+              Container(width: 10,),
+              Image.asset("assets/images/backup_.png", width: 20, height: 20, color: Colors.white,),
+            ],
+          ),
+        )
+      ],
     );
   }
 
 }
+
+class SecondTab extends StatefulWidget {
+
+  const SecondTab({Key key}) : super(key: key);
+
+  @override
+  State<SecondTab> createState() => _SecondTabState();
+
+}
+
+class _SecondTabState extends State<SecondTab> {
+
+  bool selectAll = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CheckboxListTile(
+          title: const Text("Select all", style: TextStyle(
+            color: Colors.black,
+            fontSize: 12,
+            fontFamily: 'publicsans-bold',
+          ),),
+          value: selectAll,
+          onChanged: (newValue) {
+            setState(() {
+              selectAll = !selectAll;
+            });
+          },
+          controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
+        ),
+        Container(height: 10,),
+        SizedBox(
+          height: MediaQuery.of(context).size.height - 260,
+          child: ListView.separated(
+            separatorBuilder: (context, index) {
+              return const Divider();
+            },
+            controller: ScrollController(),
+            itemCount: 7,
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemBuilder: (context, index){
+              return BackupMessageAdapter();
+            },
+          ),
+        ),
+        MaterialButton(
+          onPressed: () {
+
+          },
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          padding: const EdgeInsets.fromLTRB(70, 10, 70, 10),
+          color: HexColor("#4897FA"),
+          child:
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Restore",
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontFamily: 'publicsans-bold'
+                ),
+              ),
+              Container(width: 10,),
+              Image.asset("assets/images/restore.png", width: 20, height: 20, color: Colors.white,),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+}
+
 
 

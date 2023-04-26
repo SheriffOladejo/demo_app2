@@ -1,4 +1,4 @@
-import 'package:demo_app2/models/message_adapter.dart';
+import 'package:demo_app2/adapters/message_adapter.dart';
 import 'package:flutter/material.dart';
 
 class SMSEditor extends StatefulWidget {
