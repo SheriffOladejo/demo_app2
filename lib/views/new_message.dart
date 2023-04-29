@@ -1,6 +1,10 @@
+import 'package:demo_app2/models/contact.dart';
+import 'package:demo_app2/utils/methods.dart';
+import 'package:demo_app2/views/select_contacts.dart';
 import 'package:flutter/material.dart';
-
 import '../utils/hex_color.dart';
+import 'package:flutter_sms/flutter_sms.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class NewMessage extends StatefulWidget {
 
@@ -13,6 +17,15 @@ class NewMessage extends StatefulWidget {
 
 class _NewMessageState extends State<NewMessage> {
 
+  List<Contact> selectedContact = [];
+  List<String> recipients = [];
+
+  bool editable = true;
+  bool isLoading = false;
+
+  var numberController = TextEditingController();
+  var messageController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +37,7 @@ class _NewMessageState extends State<NewMessage> {
           onTap: () {
             Navigator.pop(context);
           },
-          child: Icon(Icons.arrow_back, color: Colors.black,),
+          child: const Icon(Icons.arrow_back, color: Colors.black,),
         ),
         title: const Text("New message", style: TextStyle(
             color: Colors.black,
@@ -32,7 +45,7 @@ class _NewMessageState extends State<NewMessage> {
             fontSize: 18),
         ),
       ),
-      body: Container(
+      body: isLoading ? loadingPage() : Container(
         color: Colors.white,
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -46,6 +59,9 @@ class _NewMessageState extends State<NewMessage> {
                     width: MediaQuery.of(context).size.width - 30,
                     alignment: Alignment.center,
                     child: TextField(
+                      controller: numberController,
+                      minLines: 1,
+                      maxLines: 10,
                       decoration: InputDecoration(
                         hintText: "Enter recipient's phone number",
                         hintStyle: const TextStyle(
@@ -53,8 +69,22 @@ class _NewMessageState extends State<NewMessage> {
                             fontFamily: 'publicsans-medium',
                             fontSize: 16),
                         prefixIcon: GestureDetector(
-                          onTap: () {
+                          onTap: () async {
+                            selectedContact = await Navigator.push(context, MaterialPageRoute(builder: (context) => const SelectContacts()));
+                            for (int i = 0; i < selectedContact.length; i++) {
+                              if (selectedContact[i].contact.phones.isNotEmpty) {
+                                if (i == selectedContact.length - 1) {
+                                  numberController.text += selectedContact[i].contact.phones[0].value;
+                                }
+                                else {
+                                  numberController.text += "${selectedContact[i].contact.phones[0].value}, ";
+                                }
+                                recipients.add(selectedContact[i].contact.phones[0].value);
+                              }
+                            }
+                            setState(() {
 
+                            });
                           },
                           child: const Icon(Icons.contact_phone,)
                         ),
@@ -78,11 +108,11 @@ class _NewMessageState extends State<NewMessage> {
         padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
         color: HexColor("#4897FA"),
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(70)),
               color: Colors.white
           ),
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -95,9 +125,10 @@ class _NewMessageState extends State<NewMessage> {
               SizedBox(
                 width: 240,
                 child: TextField(
+                  controller: messageController,
                   minLines: 1,
                   maxLines: 10,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: "Type message",
                       hintStyle: TextStyle(
@@ -110,8 +141,8 @@ class _NewMessageState extends State<NewMessage> {
               ),
               GestureDetector(
                 child: Image.asset('assets/images/send_.png'),
-                onTap: () {
-
+                onTap: () async {
+                  await send();
                 },
               ),
             ],
@@ -119,6 +150,90 @@ class _NewMessageState extends State<NewMessage> {
         ),
       ),
     );
+  }
+
+  Future<void> init() async {
+    setState(() {
+      isLoading = true;
+    });
+    //await _askPermissions(null);
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.sms,
+      Permission.contacts,
+    ].request();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  Future<void> _askPermissions(String routeName) async {
+    PermissionStatus smsStatus = await _getSMSPermission();
+    PermissionStatus permissionStatus = await _getContactPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      if (routeName != null) {
+        Navigator.of(context).pushNamed(routeName);
+      }
+    } else {
+      _handleInvalidPermissions(permissionStatus);
+    }
+  }
+
+  Future<PermissionStatus> _getContactPermission() async {
+    PermissionStatus permission = await Permission.contacts.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.permanentlyDenied) {
+      PermissionStatus permissionStatus = await Permission.contacts.request();
+      return permissionStatus;
+    } else {
+      return permission;
+    }
+  }
+
+  Future<PermissionStatus> _getSMSPermission() async {
+    PermissionStatus permission = await Permission.sms.status;
+    if (permission != PermissionStatus.granted &&
+        permission != PermissionStatus.permanentlyDenied) {
+      PermissionStatus permissionStatus = await Permission.contacts.request();
+      return permissionStatus;
+    } else {
+      return permission;
+    }
+  }
+
+  void _handleInvalidPermissions(PermissionStatus permissionStatus) {
+    if (permissionStatus == PermissionStatus.denied) {
+      final snackBar = SnackBar(content: Text('Access to contact data denied'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
+      final snackBar =
+      SnackBar(content: Text('Contact data not available on device'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  Future<void> send() async {
+    setState(() {
+      isLoading = true;
+    });
+    String message = messageController.text.trim();
+    recipients = numberController.text.split(",");
+    print("recipeint: " + recipients.toString());
+    String result = await sendSMS(message: message, recipients: recipients, sendDirect: true)
+        .catchError((onError) {
+      print(onError);
+    });
+    setState(() {
+      isLoading = false;
+    });
+    showToast("Message sent");
+    Navigator.pop(context);
+    print(result);
   }
 
 }

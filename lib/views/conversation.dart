@@ -30,7 +30,7 @@ class _ConversationState extends State<Conversation> {
           onTap: () {
             Navigator.pop(context);
           },
-          child: Icon(Icons.arrow_back, color: Colors.black,),
+          child: const Icon(Icons.arrow_back, color: Colors.black,),
         ),
         title: Row(
           children: [
@@ -38,7 +38,7 @@ class _ConversationState extends State<Conversation> {
                 alignment: Alignment.topLeft,
                 child: Image.asset("assets/images/user.png",)),
             Container(width: 10,),
-            Text(widget.message.recipientName, style: TextStyle(
+            Text(widget.message.recipientName, style: const TextStyle(
             color: Colors.black,
             fontFamily: 'publicsans-bold',
             fontSize: 18)),
@@ -63,11 +63,11 @@ class _ConversationState extends State<Conversation> {
         padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
         color: HexColor("#4897FA"),
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(70)),
               color: Colors.white
           ),
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -77,7 +77,7 @@ class _ConversationState extends State<Conversation> {
 
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 width: 240,
                 child: TextField(
                   minLines: 1,

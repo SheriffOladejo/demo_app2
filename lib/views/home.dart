@@ -22,212 +22,214 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.centerRight,
-              width: MediaQuery.of(context).size.width,
-              child: Image.asset("assets/images/home_bg.png",)
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Container(height: 15,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(slideLeft(const NewMessage()));
-                        },
-                        child: Container(
-                          width: 155,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(Radius.circular(16)),
-                            border: Border.all(color: HexColor("#7F38AB")),
-                          ),
-                          padding: const EdgeInsets.all(5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset("assets/images/sms.png"),
-                              Container(height: 5,),
-                              Text(
-                                "Send SMS",
-                                style: TextStyle(
-                                    color: HexColor("#7F38AB"),
-                                    fontSize: 14,
-                                    fontFamily: 'publicsans-bold'
-                                ),
-                              ),
-                              Container(height: 10,),
-                              Text(
-                                "Quickly compose and send text messages to contacts",
-                                style: TextStyle(
-                                    color: HexColor("#7F38AB"),
-                                    fontSize: 8,
-                                    fontFamily: 'publicsans-regular'
-                                ),
-                              ),
-                              Container(height: 10,),
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_forward_rounded, color: HexColor("#7F38AB"),),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          if (Platform.isIOS) {
-                            showCupertinoModalBottomSheet(
-                              backgroundColor: Colors.transparent,
-                              context: context,
-                              expand: false,
-                              builder: (context) => scheduleMessage(),
-                            );
-                          }
-                          else if (Platform.isAndroid) {
-                            showMaterialModalBottomSheet(
-                              backgroundColor: Colors.transparent,
-                              context: context,
-                              expand: false,
-                              builder: (context) => scheduleMessage(),
-                            );
-                          }
-                        },
-                        child: Container(
-                          width: 155,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(Radius.circular(16)),
-                            border: Border.all(color: HexColor("#C66F45")),
-                          ),
-                          padding: const EdgeInsets.all(5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset("assets/images/schedule.png"),
-                              Container(height: 5,),
-                              Text(
-                                "Schedule message",
-                                style: TextStyle(
-                                    color: HexColor("#C66F45"),
-                                    fontSize: 14,
-                                    fontFamily: 'publicsans-bold'
-                                ),
-                              ),
-                              Container(height: 10,),
-                              Text(
-                                "Schedule message to be sent at a later date",
-                                style: TextStyle(
-                                    color: HexColor("#C66F45"),
-                                    fontSize: 8,
-                                    fontFamily: 'publicsans-regular'
-                                ),
-                              ),
-                              Container(height: 10,),
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_forward_rounded, color: HexColor("#C66F45"),),
-                              )
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Container(height: 15,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(slideLeft(const Backup()));
-                        },
-                        child: Container(
-                          width: 155,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.all(Radius.circular(16)),
-                            border: Border.all(color: HexColor("#5D8800")),
-                          ),
-                          padding: const EdgeInsets.all(5),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset("assets/images/backup.png"),
-                              Container(height: 5,),
-                              Text(
-                                "Backup & restore",
-                                style: TextStyle(
-                                    color: HexColor("#5D8800"),
-                                    fontSize: 14,
-                                    fontFamily: 'publicsans-bold'
-                                ),
-                              ),
-                              Container(height: 10,),
-                              Text(
-                                "Backup your messages and restore whenever",
-                                style: TextStyle(
-                                    color: HexColor("#5D8800"),
-                                    fontSize: 8,
-                                    fontFamily: 'publicsans-regular'
-                                ),
-                              ),
-                              Container(height: 10,),
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.arrow_forward_rounded, color: HexColor("#5D8800"),),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 155,
-                        height: 120,
-                      )
-                    ],
-                  ),
-                  Container(height: 15,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("History", style: TextStyle(color: Colors.black, fontFamily: 'publicsans-bold', fontSize: 16),),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(slideLeft(const SMSEditor()));
-                        },
-                        child: Text("See all", style: TextStyle(color: Colors.blue, fontFamily: 'publicsans-regular', fontSize: 10),)
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 320,
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return const Divider();
-                      },
-                      controller: ScrollController(),
-                      itemCount: 7,
-                      shrinkWrap: true,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemBuilder: (context, index){
-                        return MessageAdapter();
-                      },
-                    ),
-                  )
-                ],
+      body: SingleChildScrollView(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: Column(
+            children: [
+              Container(
+                alignment: Alignment.centerRight,
+                width: MediaQuery.of(context).size.width,
+                child: Image.asset("assets/images/home_bg.png",)
               ),
-            ),
-          ],
+              Container(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  children: [
+                    Container(height: 15,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const NewMessage()));
+                          },
+                          child: Container(
+                            width: 155,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(16)),
+                              border: Border.all(color: HexColor("#7F38AB")),
+                            ),
+                            padding: const EdgeInsets.all(5),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.asset("assets/images/sms.png"),
+                                Container(height: 5,),
+                                Text(
+                                  "Send SMS",
+                                  style: TextStyle(
+                                      color: HexColor("#7F38AB"),
+                                      fontSize: 14,
+                                      fontFamily: 'publicsans-bold'
+                                  ),
+                                ),
+                                Container(height: 10,),
+                                Text(
+                                  "Quickly compose and send text messages to contacts",
+                                  style: TextStyle(
+                                      color: HexColor("#7F38AB"),
+                                      fontSize: 8,
+                                      fontFamily: 'publicsans-regular'
+                                  ),
+                                ),
+                                Container(height: 10,),
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Icon(Icons.arrow_forward_rounded, color: HexColor("#7F38AB"),),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (Platform.isIOS) {
+                              showCupertinoModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                expand: false,
+                                builder: (context) => scheduleMessage(),
+                              );
+                            }
+                            else if (Platform.isAndroid) {
+                              showMaterialModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                expand: false,
+                                builder: (context) => scheduleMessage(),
+                              );
+                            }
+                          },
+                          child: Container(
+                            width: 155,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(16)),
+                              border: Border.all(color: HexColor("#C66F45")),
+                            ),
+                            padding: const EdgeInsets.all(5),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.asset("assets/images/schedule.png"),
+                                Container(height: 5,),
+                                Text(
+                                  "Schedule message",
+                                  style: TextStyle(
+                                      color: HexColor("#C66F45"),
+                                      fontSize: 14,
+                                      fontFamily: 'publicsans-bold'
+                                  ),
+                                ),
+                                Container(height: 10,),
+                                Text(
+                                  "Schedule message to be sent at a later date",
+                                  style: TextStyle(
+                                      color: HexColor("#C66F45"),
+                                      fontSize: 8,
+                                      fontFamily: 'publicsans-regular'
+                                  ),
+                                ),
+                                Container(height: 10,),
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Icon(Icons.arrow_forward_rounded, color: HexColor("#C66F45"),),
+                                )
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Container(height: 15,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(slideLeft(const Backup()));
+                          },
+                          child: Container(
+                            width: 155,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(16)),
+                              border: Border.all(color: HexColor("#5D8800")),
+                            ),
+                            padding: const EdgeInsets.all(5),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.asset("assets/images/backup.png"),
+                                Container(height: 5,),
+                                Text(
+                                  "Backup & restore",
+                                  style: TextStyle(
+                                      color: HexColor("#5D8800"),
+                                      fontSize: 14,
+                                      fontFamily: 'publicsans-bold'
+                                  ),
+                                ),
+                                Container(height: 10,),
+                                Text(
+                                  "Backup your messages and restore whenever",
+                                  style: TextStyle(
+                                      color: HexColor("#5D8800"),
+                                      fontSize: 8,
+                                      fontFamily: 'publicsans-regular'
+                                  ),
+                                ),
+                                Container(height: 10,),
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Icon(Icons.arrow_forward_rounded, color: HexColor("#5D8800"),),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 155,
+                          height: 120,
+                        )
+                      ],
+                    ),
+                    Container(height: 15,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("History", style: TextStyle(color: Colors.black, fontFamily: 'publicsans-bold', fontSize: 16),),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(slideLeft(const SMSEditor()));
+                          },
+                          child: Text("See all", style: TextStyle(color: Colors.blue, fontFamily: 'publicsans-regular', fontSize: 10),)
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height - 410,
+                      child: ListView.separated(
+                        separatorBuilder: (context, index) {
+                          return const Divider();
+                        },
+                        controller: ScrollController(),
+                        itemCount: 7,
+                        shrinkWrap: true,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index){
+                          return MessageAdapter();
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
