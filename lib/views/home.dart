@@ -1,6 +1,7 @@
 import 'dart:io';
-
 import 'package:demo_app2/adapters/message_adapter.dart';
+import 'package:demo_app2/models/message.dart';
+import 'package:demo_app2/utils/db_helper.dart';
 import 'package:demo_app2/utils/hex_color.dart';
 import 'package:demo_app2/utils/methods.dart';
 import 'package:demo_app2/views/backup.dart';
@@ -19,10 +20,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  bool is_loading = false;
+
+  var db_helper = DbHelper();
+
+  List<Message> conversations = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body:is_loading ? loadingPage() : SingleChildScrollView(
         child: SizedBox(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
@@ -217,11 +224,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           return const Divider();
                         },
                         controller: ScrollController(),
-                        itemCount: 7,
+                        itemCount: conversations.length,
                         shrinkWrap: true,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index){
-                          return MessageAdapter();
+                          return MessageAdapter(message: conversations[index],);
                         },
                       ),
                     )
@@ -233,6 +240,23 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> init() async {
+    setState(() {
+      is_loading = true;
+    });
+    conversations = await db_helper.getConversations();
+    conversations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    setState(() {
+      is_loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
   }
 
   Widget scheduleMessage() {

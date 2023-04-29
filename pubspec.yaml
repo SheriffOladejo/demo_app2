@@ -13,12 +13,14 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   fluttertoast: ^8.0.8
-  modal_bottom_sheet: ^2.1.2
+  modal_bottom_sheet: ^2.1.0
   intl: ^0.18.1
   grouped_list: ^5.1.2
   flutter_sms: ^2.3.3
+  path_provider: ^2.0.2
   contacts_service: ^0.6.3
   permission_handler: ^9.0.2
+  sqflite: 2.2.8
 
 dev_dependencies:
   flutter_test:

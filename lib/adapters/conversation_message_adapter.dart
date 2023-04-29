@@ -19,13 +19,13 @@ class _ConversationMessageAdapterState extends State<ConversationMessageAdapter>
 
     String type = "square"; // circle, square, pointy
 
-    if (widget.message.message.length <= 3) {
+    if (widget.message.text.length <= 3) {
       type = "circle";
     }
-    else if (widget.message.message.length <= 50 || widget.message.message.length % 2 == 1) {
+    else if (widget.message.text.length <= 50 || widget.message.text.length % 2 == 1) {
       type = "square";
     }
-    else if (widget.message.message.length > 50 || widget.message.message.length % 2 == 0) {
+    else if (widget.message.text.length > 50 || widget.message.text.length % 2 == 0) {
       type = "pointy";
     }
 
@@ -34,16 +34,16 @@ class _ConversationMessageAdapterState extends State<ConversationMessageAdapter>
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: 
-          type == "circle" ? BorderRadius.all(Radius.circular(48)) :
-          type == "square" ? BorderRadius.all(Radius.circular(16)) :
-          BorderRadius.only(
+          type == "circle" ? const BorderRadius.all(Radius.circular(48)) :
+          type == "square" ? const BorderRadius.all(Radius.circular(16)) :
+          const BorderRadius.only(
             bottomLeft: Radius.circular(16),
             topRight: Radius.circular(16),
             topLeft: Radius.circular(16)
           ),
         color: HexColor("#E1E1E1"),
       ),
-      child: Text(widget.message.message, style: TextStyle(
+      child: Text(widget.message.text, style: const TextStyle(
         color: Colors.black,
         fontFamily: 'publicsans-medium',
         fontSize: 12,

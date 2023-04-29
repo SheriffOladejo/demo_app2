@@ -1,6 +1,8 @@
 import 'package:demo_app2/adapters/conversation_message_adapter.dart';
 import 'package:demo_app2/models/message.dart';
+import 'package:demo_app2/utils/db_helper.dart';
 import 'package:demo_app2/utils/hex_color.dart';
+import 'package:demo_app2/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 
@@ -18,6 +20,10 @@ class Conversation extends StatefulWidget {
 class _ConversationState extends State<Conversation> {
 
   List<Message> messageList = [];
+
+  bool is_loading = false;
+
+  var db_helper = DbHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +51,7 @@ class _ConversationState extends State<Conversation> {
           ],
         )
       ),
-      body: GroupedListView<Message, String>(
+      body: is_loading ? loadingPage() : GroupedListView<Message, String>(
         elements: messageList,
         groupBy: (message) => message.groupDate,
         groupSeparatorBuilder: (String groupByValue) => Text(groupByValue),
@@ -104,6 +110,23 @@ class _ConversationState extends State<Conversation> {
         ),
       ),
     );
+  }
+
+  Future<void> init() async {
+    setState(() {
+      is_loading = true;
+    });
+    messageList = await db_helper.getConversation(widget.message.recipientNumber);
+    messageList.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    setState(() {
+      is_loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
   }
 
 }

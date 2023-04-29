@@ -2,7 +2,7 @@ class Message {
 
   int id;
   int timestamp;
-  String message;
+  String text;
   String groupDate;
   String recipientNumber;
   String recipientName;
@@ -11,7 +11,7 @@ class Message {
 
   Message({
     this.id,
-    this.message,
+    this.text,
     this.timestamp,
     this.groupDate,
     this.recipientNumber,
