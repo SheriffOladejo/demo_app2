@@ -44,7 +44,7 @@ class _ConversationState extends State<Conversation> {
                 alignment: Alignment.topLeft,
                 child: Image.asset("assets/images/user.png",)),
             Container(width: 10,),
-            Text(widget.message.recipientName, style: const TextStyle(
+            Text("${widget.message.recipientName} (${widget.message.recipientNumber})", style: const TextStyle(
             color: Colors.black,
             fontFamily: 'publicsans-bold',
             fontSize: 18)),
@@ -57,7 +57,11 @@ class _ConversationState extends State<Conversation> {
         groupSeparatorBuilder: (String groupByValue) => Text(groupByValue),
         groupComparator: (value1, value2) => value2.compareTo(value1),
         indexedItemBuilder: (context, message, index) {
-          return ConversationMessageAdapter(message: messageList[index]);
+          bool last = false;
+          if (index == messageList.length - 1) {
+            last = true;
+          }
+          return ConversationMessageAdapter(message: messageList[index], last: last,);
         },
         itemComparator: (m1, m2) => m1.timestamp.compareTo(m2.timestamp), // optional
         useStickyGroupSeparators: true, // optional

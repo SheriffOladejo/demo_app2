@@ -7,6 +7,7 @@ class Message {
   String recipientNumber;
   String recipientName;
   String sender;
+  String backup;
   bool isSelected = false;
 
   Message({
@@ -18,6 +19,7 @@ class Message {
     this.recipientName,
     this.sender,
     this.isSelected,
+    this.backup,
   });
 
 }

@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const NewMessage()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => NewMessage(callback: callback,)));
                           },
                           child: Container(
                             width: 155,
@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.of(context).push(slideLeft(const Backup()));
+                            Navigator.of(context).push(slideLeft(Backup(callback: callback,)));
                           },
                           child: Container(
                             width: 155,
@@ -240,6 +240,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> callback() async {
+    conversations = await db_helper.getConversations();
+    conversations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
   Future<void> init() async {

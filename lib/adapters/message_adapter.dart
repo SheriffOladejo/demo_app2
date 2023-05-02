@@ -20,7 +20,7 @@ class MessageAdapter extends StatelessWidget {
     var date = DateTime.fromMillisecondsSinceEpoch(message.timestamp);
     var timestamp = DateFormat('E, MMM d y').format(date);
 
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         Navigator.of(context).push(slideLeft(Conversation(message: message,)));
       },

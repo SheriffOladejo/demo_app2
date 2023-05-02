@@ -19,6 +19,11 @@ dependencies:
   flutter_sms: ^2.3.3
   path_provider: ^2.0.2
   contacts_service: ^0.6.3
+  firebase_database: ^10.0.9
+  firebase_core: ^2.4.1
+  device_info_plus: ^8.2.0
+  crypto: ^3.0.1
+  chat_bubbles: ^1.4.1
   permission_handler: ^9.0.2
   sqflite: 2.2.8
 

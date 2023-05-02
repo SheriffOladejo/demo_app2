@@ -10,7 +10,11 @@ import 'package:permission_handler/permission_handler.dart';
 
 class NewMessage extends StatefulWidget {
 
-  const NewMessage({Key key}) : super(key: key);
+  Function callback;
+
+  NewMessage({
+    this.callback,
+  });
 
   @override
   State<NewMessage> createState() => _NewMessageState();
@@ -86,6 +90,7 @@ class _NewMessageState extends State<NewMessage> {
                           prefixIcon: GestureDetector(
                             onTap: () async {
                               selectedContact = await Navigator.push(context, MaterialPageRoute(builder: (context) => const SelectContacts()));
+                              numberController.text = "";
                               for (int i = 0; i < selectedContact.length; i++) {
                                 if (selectedContact[i].contact.phones.isNotEmpty) {
                                   if (i == selectedContact.length - 1) {
@@ -249,36 +254,57 @@ class _NewMessageState extends State<NewMessage> {
     String message = messageController.text.trim();
     recipients = numberController.text.split(",");
     String name = "";
-    if (recipients.length > 1) {
-      name = "Multiple";
+
+    if (selectedContact.isNotEmpty) {
+      for (var i = 0; i < selectedContact.length; i++) {
+        name = selectedContact[i].contact.displayName ?? selectedContact[i].contact.phones[0].value;
+        // await sendSMS(message: message, recipients: [selectedContact[i].contact.phones[0].value], sendDirect: true)
+        //     .catchError((onError) {
+        //   print(onError);
+        // });
+        var timestamp = DateTime.now().millisecondsSinceEpoch;
+        var m = Message(
+            id: timestamp,
+            text: message,
+            recipientName: name,
+            recipientNumber: selectedContact[i].contact.phones[0].value,
+            timestamp: timestamp,
+            sender: "user",
+            groupDate: "",
+            isSelected: false,
+            backup: 'false'
+        );
+        await db_helper.saveMessage(m);
+      }
     }
     else {
-      if (selectedContact.isNotEmpty) {
-        name = selectedContact[0].contact.displayName;
-      }
-      else {
-        name = numberController.text.toString().trim();
+      for (var i = 0; i < recipients.length; i++) {
+        name = recipients[i];
+        // await sendSMS(message: message, recipients: [recipients[i]], sendDirect: true)
+        //     .catchError((onError) {
+        //   print(onError);
+        // });
+        var timestamp = DateTime.now().millisecondsSinceEpoch;
+        var m = Message(
+          id: timestamp,
+          text: message,
+          recipientName: name,
+          recipientNumber: recipients[i],
+          timestamp: timestamp,
+          sender: "user",
+          groupDate: "",
+          isSelected: false,
+          backup: 'false'
+        );
+        await db_helper.saveMessage(m);
       }
     }
 
-    String result = await sendSMS(message: message, recipients: recipients, sendDirect: true)
-        .catchError((onError) {
-      print(onError);
-    });
-    var m = Message(
-      text: message,
-      recipientName: name,
-      recipientNumber: numberController.text,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      sender: "user",
-      groupDate: "",
-      isSelected: false
-    );
-    await db_helper.saveMessage(m);
     setState(() {
       isLoading = false;
     });
     showToast("Message sent");
+    await widget.callback();
     Navigator.pop(context);
   }
 

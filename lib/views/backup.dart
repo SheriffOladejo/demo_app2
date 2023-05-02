@@ -1,9 +1,15 @@
 import 'package:demo_app2/adapters/backup_message_adapter.dart';
+import 'package:demo_app2/models/message.dart';
+import 'package:demo_app2/utils/db_helper.dart';
 import 'package:demo_app2/utils/hex_color.dart';
+import 'package:demo_app2/utils/methods.dart';
+import 'package:demo_app2/views/home.dart';
 import 'package:flutter/material.dart';
 
 class Backup extends StatefulWidget {
-  const Backup({Key key}) : super(key: key);
+
+  Function callback;
+  Backup({this.callback});
 
   @override
   State<Backup> createState() => _BackupState();
@@ -11,12 +17,43 @@ class Backup extends StatefulWidget {
 
 class _BackupState extends State<Backup> {
 
+  var db_helper = DbHelper();
+
+  bool is_loading = false;
+
+  List<Message> list = [];
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 1,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: GestureDetector(
+            onTap: () async {
+              await widget.callback();
+              Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
+            },
+            child: const Icon(Icons.arrow_back, color: Colors.white,),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () async {
+                showToast("Restoring messages");
+                setState(() {
+                  is_loading = true;
+                });
+                await db_helper.restore();
+                setState(() {
+                  is_loading = false;
+                });
+                showToast("Messages restored");
+              },
+              child: const Icon(Icons.download_for_offline),
+            ),
+            Container(width: 10,),
+          ],
           backgroundColor: HexColor("#4897FA"),
           bottom: const TabBar(
             tabs: [
@@ -29,22 +66,12 @@ class _BackupState extends State<Backup> {
                       fontSize: 12),
                 ),
               ),
-              Tab(
-                child: Text(
-                  "Restore",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'publicsans-bold',
-                      fontSize: 12),
-                ),
-              ),
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            FirstTab(),
-            SecondTab(),
+            FirstTab(list: list,),
           ],
         ),
       ),
@@ -55,7 +82,8 @@ class _BackupState extends State<Backup> {
 
 class FirstTab extends StatefulWidget {
 
-  const FirstTab({Key key}) : super(key: key);
+  List<Message> list;
+  FirstTab({this.list});
 
   @override
   State<FirstTab> createState() => _FirstTabState();
@@ -66,9 +94,15 @@ class _FirstTabState extends State<FirstTab> {
 
   bool selectAll = false;
 
+  bool is_loading = false;
+
+  var db_helper = DbHelper();
+
+  List<Message> messages = [];
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return is_loading ? loadingPage() : Column(
       children: [
         CheckboxListTile(
           title: const Text("Select all", style: TextStyle(
@@ -78,6 +112,18 @@ class _FirstTabState extends State<FirstTab> {
           ),),
           value: selectAll,
           onChanged: (newValue) {
+            if (newValue) {
+              for (var i = 0; i < messages.length; i++) {
+                messages[i].isSelected = true;
+                widget.list.add(messages[i]);
+              }
+            }
+            else {
+              for (var i = 0; i < messages.length; i++) {
+                messages[i].isSelected = false;
+                widget.list.remove(messages[i]);
+              }
+            }
             setState(() {
               selectAll = !selectAll;
             });
@@ -92,17 +138,30 @@ class _FirstTabState extends State<FirstTab> {
               return const Divider();
             },
             controller: ScrollController(),
-            itemCount: 7,
+            itemCount: messages.length,
             shrinkWrap: true,
             physics: const AlwaysScrollableScrollPhysics(),
             itemBuilder: (context, index){
-              return BackupMessageAdapter();
+              return BackupMessageAdapter(
+                message: messages[index],
+                list: widget.list,
+              );
             },
           ),
         ),
         MaterialButton(
-          onPressed: () {
-
+          onPressed: () async {
+            if (widget.list.isNotEmpty) {
+              showToast("Backing up messages");
+              setState(() {
+                is_loading = true;
+              });
+              await db_helper.backup(widget.list);
+              setState(() {
+                is_loading = false;
+              });
+              showToast("Messages backed up");
+            }
           },
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -129,6 +188,22 @@ class _FirstTabState extends State<FirstTab> {
         )
       ],
     );
+  }
+
+  Future<void> init() async {
+    setState(() {
+      is_loading = true;
+    });
+    messages = await db_helper.getUnBackedUpMessages();
+    setState(() {
+      is_loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
   }
 
 }

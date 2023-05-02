@@ -21,6 +21,8 @@ class _SelectContactsState extends State<SelectContacts> {
   bool isLoading = false;
   bool isForward = false;
 
+  var focusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +49,7 @@ class _SelectContactsState extends State<SelectContacts> {
           SearchWidget(
             isForward: isForward,
             callback: callback,
+            focusNode: focusNode,
           ),
         ],
       ),

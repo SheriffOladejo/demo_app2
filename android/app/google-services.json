@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "422839437989",
+    "project_id": "smsapp-328f9",
+    "storage_bucket": "smsapp-328f9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:422839437989:android:d11db85f1ccda8f3615b4c",
+        "android_client_info": {
+          "package_name": "com.olan.demo_app2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "422839437989-ev0ri4p14gmc933innbtpvjtnven2ord.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7WOTkY0QrnkgXfeZ34yXXXpl1wK0_tOU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "422839437989-ev0ri4p14gmc933innbtpvjtnven2ord.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

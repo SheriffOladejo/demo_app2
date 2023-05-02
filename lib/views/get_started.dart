@@ -21,60 +21,62 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        color: Colors.white,
-        margin: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.asset("assets/images/amico.png",width: 360, height: 360,),
-            Container(height: 15,),
-            const Text("Effortlessly manage your messages", style: TextStyle(
+      body: SingleChildScrollView(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          color: Colors.white,
+          margin: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset("assets/images/amico.png",width: 360, height: 360,),
+              Container(height: 15,),
+              const Text("Effortlessly manage your messages", style: TextStyle(
+                  color: Colors.black,
+                  fontFamily: 'publicsans-bold',
+                  fontSize: 24,
+              ),),
+              Container(height: 15,),
+              const Text("Send, backup and schedule SMS messages in easy steps", style: TextStyle(
                 color: Colors.black,
-                fontFamily: 'publicsans-bold',
-                fontSize: 24,
-            ),),
-            Container(height: 15,),
-            const Text("Send, backup and schedule SMS messages in easy steps", style: TextStyle(
-              color: Colors.black,
-              fontFamily: 'publicsans-regular',
-              fontSize: 16,
-            ),),
-            const Spacer(),
-            Container(
-              width: 190,
-              margin: const EdgeInsets.only(bottom: 40,),
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  backgroundColor: HexColor("#4897FA"),
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                ),
-                child:
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      "Get started",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontFamily: 'publicsans-bold'
-                      ),
+                fontFamily: 'publicsans-regular',
+                fontSize: 16,
+              ),),
+              const SizedBox(height: 100,),
+              Container(
+                width: 190,
+                margin: const EdgeInsets.only(bottom: 15,),
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
+                    backgroundColor: HexColor("#4897FA"),
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                  ),
+                  child:
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        "Get started",
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontFamily: 'publicsans-bold'
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

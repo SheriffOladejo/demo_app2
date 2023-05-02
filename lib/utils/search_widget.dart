@@ -4,10 +4,12 @@ class SearchWidget extends StatefulWidget {
 
   bool isForward;
   Function callback;
+  FocusNode focusNode;
 
   SearchWidget({
     this.isForward,
     this.callback,
+    this.focusNode,
   });
 
   @override
@@ -43,6 +45,8 @@ class _SearchWidgetState extends State<SearchWidget> with
             child: Padding(
               padding: const EdgeInsets.only(left: 20, bottom: 2),
               child: TextField(
+                autofocus: true,
+                focusNode: widget.focusNode,
                 controller: search_controller,
                 onSubmitted: (value) {
                   widget.isForward = true;
@@ -110,6 +114,7 @@ class _SearchWidgetState extends State<SearchWidget> with
 
       });
     });
+    widget.focusNode.requestFocus();
   }
 
 }
