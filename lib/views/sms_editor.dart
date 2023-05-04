@@ -1,4 +1,6 @@
 import 'package:demo_app2/adapters/message_adapter.dart';
+import 'package:demo_app2/models/message.dart';
+import 'package:demo_app2/utils/db_helper.dart';
 import 'package:flutter/material.dart';
 
 class SMSEditor extends StatefulWidget {
@@ -10,6 +12,12 @@ class SMSEditor extends StatefulWidget {
 }
 
 class _SMSEditorState extends State<SMSEditor> {
+
+  bool is_loading = false;
+
+  var db_helper = DbHelper();
+
+  List<Message> conversations = [];
 
   @override
   Widget build(BuildContext context) {
@@ -53,15 +61,34 @@ class _SMSEditorState extends State<SMSEditor> {
             return const Divider();
           },
           controller: ScrollController(),
-          itemCount: 7,
+          itemCount: conversations.length,
           shrinkWrap: false,
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           itemBuilder: (context, index){
-            return MessageAdapter();
+            return MessageAdapter(
+              message: conversations[index],
+            );
           },
         ),
       ),
     );
+  }
+
+  Future<void> init() async {
+    setState(() {
+      is_loading = true;
+    });
+    conversations = await db_helper.getConversations();
+    conversations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    setState(() {
+      is_loading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
   }
 
 }

@@ -25,6 +25,13 @@ class _ConversationState extends State<Conversation> {
 
   var db_helper = DbHelper();
 
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+
+  var timestamp = DateTime.now().millisecondsSinceEpoch;
+
+  var messageController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,16 +90,32 @@ class _ConversationState extends State<Conversation> {
             children: [
               GestureDetector(
                 child: Image.asset('assets/images/clock.png'),
-                onTap: () {
-
+                onTap: () async {
+                  final DateTime pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2101));
+                  if (pickedDate != null && pickedDate != selectedDate) {
+                    final TimeOfDay picked = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now());
+                    if (picked != null && picked != selectedTime) {
+                      setState(() {
+                        selectedDate = pickedDate;
+                        selectedTime = picked;
+                      });
+                    }
+                  }
                 },
               ),
-              const SizedBox(
+              SizedBox(
                 width: 240,
                 child: TextField(
+                  controller: messageController,
                   minLines: 1,
                   maxLines: 10,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: "Type message",
                       hintStyle: TextStyle(
@@ -105,8 +128,8 @@ class _ConversationState extends State<Conversation> {
               ),
               GestureDetector(
                 child: Image.asset('assets/images/send_.png'),
-                onTap: () {
-
+                onTap: () async {
+                  await send();
                 },
               ),
             ],
@@ -131,6 +154,30 @@ class _ConversationState extends State<Conversation> {
   void initState() {
     super.initState();
     init();
+  }
+
+  Future<void> send() async {
+    timestamp = DateTime(selectedDate.year, selectedDate.month, selectedDate.year,
+        selectedTime.hour, selectedTime.minute).millisecondsSinceEpoch;
+    String message = messageController.text.trim();
+    // await sendSMS(message: message, recipients: [selectedContact[i].contact.phones[0].value], sendDirect: true)
+    //     .catchError((onError) {
+    //   print(onError);
+    // });
+    var m = Message(
+        id: DateTime.now().millisecondsSinceEpoch,
+        text: message,
+        recipientName: widget.message.recipientName,
+        recipientNumber: widget.message.recipientNumber,
+        timestamp: timestamp,
+        sender: "user",
+        groupDate: "",
+        isSelected: false,
+        backup: 'false'
+    );
+    messageController.text = "";
+    await db_helper.saveMessage(m);
+    await init();
   }
 
 }

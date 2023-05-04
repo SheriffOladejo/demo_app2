@@ -8,7 +8,11 @@ import 'package:demo_app2/views/backup.dart';
 import 'package:demo_app2/views/new_message.dart';
 import 'package:demo_app2/views/sms_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:demo_app2/models/contact.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+import 'select_contacts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -25,6 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
   var db_helper = DbHelper();
 
   List<Message> conversations = [];
+
+  List<Contact> selectedContact = [];
+  List<String> recipients = [];
+  var numberController = TextEditingController();
+  var messageController = TextEditingController();
+
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () {
                             Navigator.of(context).push(slideLeft(const SMSEditor()));
                           },
-                          child: Text("See all", style: TextStyle(color: Colors.blue, fontFamily: 'publicsans-regular', fontSize: 10),)
+                          child: const Text("See all", style: TextStyle(color: Colors.blue, fontFamily: 'publicsans-regular', fontSize: 10),)
                         )
                       ],
                     ),
@@ -265,6 +277,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget scheduleMessage() {
+    var date = DateFormat('MMMM dd, yyyy').format(selectedDate);
+    final localizations = MaterialLocalizations.of(context);
+    final formattedTimeOfDay = localizations.formatTimeOfDay(selectedTime);
     return Container(
       color: Colors.transparent,
       child: Container(
@@ -305,12 +320,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(
                     width: 200,
                     child: TextField(
+                      keyboardType: TextInputType.number,
+                      controller: numberController,
                       minLines: 1,
                       maxLines: 5,
                       decoration: InputDecoration(
                         prefixIcon: GestureDetector(
-                          onTap: () {
-                            showToast("message");
+                          onTap: () async {
+                            selectedContact = await Navigator.push(context, MaterialPageRoute(builder: (context) => const SelectContacts()));
+                            numberController.text = "";
+                            for (int i = 0; i < selectedContact.length; i++) {
+                              if (selectedContact[i].contact.phones.isNotEmpty) {
+                                if (i == selectedContact.length - 1) {
+                                  numberController.text += selectedContact[i].contact.phones[0].value;
+                                }
+                                else {
+                                  numberController.text += "${selectedContact[i].contact.phones[0].value}, ";
+                                }
+                                recipients.add(selectedContact[i].contact.phones[0].value);
+                              }
+                            }
+                            setState(() {
+
+                            });
                           },
                             child: const Icon(Icons.contact_phone)
                         ),
@@ -329,8 +361,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 100,
                     alignment: Alignment.center,
                     child: MaterialButton(
-                      onPressed: () {
-
+                      onPressed: () async {
+                        await send();
                       },
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -360,6 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Container(height: 20),
               TextField(
+                controller: messageController,
                 minLines: 1,
                 maxLines: 20,
                 decoration: InputDecoration(
@@ -374,50 +407,76 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Container(height: 20,),
-              Row(
-                children: [
-                  const Icon(Icons.calendar_month, size: 24, color: Colors.grey,),
-                  Container(width: 15,),
-                  Column(
-                    children: [
-                      const Text("Select date", style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: 'publicsans-regular',
-                        fontSize: 10
-                      ),),
-                      Container(height: 5,),
-                      const Text("April 14, 2023", style: TextStyle(
-                          color: Colors.grey,
-                          fontFamily: 'publicsans-regular',
-                          fontSize: 8
-                      ),),
-                    ],
-                  )
-                ],
-              ),
-              const Divider(color: Colors.blue,),
-              Container(height: 10,),
-              Row(
-                children: [
-                  const Icon(Icons.access_time_rounded, size: 24, color: Colors.grey,),
-                  Container(width: 15,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Select time", style: TextStyle(
+              InkWell(
+                onTap: () async {
+                  final DateTime picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2101));
+                  if (picked != null && picked != selectedDate) {
+                    setState(() {
+                      selectedDate = picked;
+                    });
+                  }
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_month, size: 24, color: Colors.grey,),
+                    Container(width: 15,),
+                    Column(
+                      children: [
+                        const Text("Select date", style: TextStyle(
                           color: Colors.black,
                           fontFamily: 'publicsans-regular',
                           fontSize: 10
-                      ),),
-                      Container(height: 5,),
-                      const Text("11:05 PM", style: TextStyle(
-                          color: Colors.grey,
-                          fontFamily: 'publicsans-regular',
-                          fontSize: 8
-                      ),),
-                    ],
-                  )
-                ],
+                        ),),
+                        Container(height: 5,),
+                        Text(date, style: const TextStyle(
+                            color: Colors.grey,
+                            fontFamily: 'publicsans-regular',
+                            fontSize: 8
+                        ),),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.blue,),
+              Container(height: 10,),
+              InkWell(
+                onTap: () async {
+                  final TimeOfDay picked = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now());
+                  if (picked != null && picked != selectedTime) {
+                    setState(() {
+                      selectedTime = picked;
+                    });
+                  }
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.access_time_rounded, size: 24, color: Colors.grey,),
+                    Container(width: 15,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Select time", style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'publicsans-regular',
+                            fontSize: 10
+                        ),),
+                        Container(height: 5,),
+                        Text(formattedTimeOfDay, style: const TextStyle(
+                            color: Colors.grey,
+                            fontFamily: 'publicsans-regular',
+                            fontSize: 8
+                        ),),
+                      ],
+                    )
+                  ],
+                ),
               ),
               const Divider(color: Colors.blue,),
             ],
@@ -425,6 +484,63 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> send() async {
+    int timestamp = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
+        selectedTime.hour, selectedTime.minute).millisecondsSinceEpoch;
+    String message = messageController.text.trim();
+    recipients = numberController.text.split(",");
+    String name = "";
+
+    if (selectedContact.isNotEmpty) {
+      for (var i = 0; i < selectedContact.length; i++) {
+        name = selectedContact[i].contact.displayName ?? selectedContact[i].contact.phones[0].value;
+        var m = Message(
+            id: DateTime.now().millisecondsSinceEpoch,
+            text: message,
+            recipientName: name,
+            recipientNumber: selectedContact[i].contact.phones[0].value,
+            timestamp: timestamp,
+            sender: "user",
+            groupDate: "",
+            isSelected: false,
+            backup: 'false'
+        );
+        await db_helper.scheduleMessage(m);
+        await db_helper.saveMessage(m);
+      }
+    }
+    else {
+      for (var i = 0; i < recipients.length; i++) {
+        name = recipients[i];
+        var timestamp = DateTime.now().millisecondsSinceEpoch;
+        var m = Message(
+            id: DateTime.now().millisecondsSinceEpoch,
+            text: message,
+            recipientName: name,
+            recipientNumber: recipients[i],
+            timestamp: timestamp,
+            sender: "user",
+            groupDate: "",
+            isSelected: false,
+            backup: 'false'
+        );
+        await db_helper.scheduleMessage(m);
+        await db_helper.saveMessage(m);
+      }
+    }
+    showToast("Message scheduled");
+    messageController.text = "";
+    numberController.text = "";
+    selectedTime = TimeOfDay.now();
+    selectedDate = DateTime.now();
+    conversations = await db_helper.getConversations();
+    conversations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    setState(() {
+
+    });
+    Navigator.pop(context);
   }
 
 }

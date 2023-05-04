@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
-
+import 'package:demo_app2/utils/constants.dart';
+import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:demo_app2/models/message.dart';
 import 'package:demo_app2/utils/methods.dart';
@@ -83,21 +84,6 @@ class DbHelper {
       );
       await saveMessage(m);
     });
-    // for(int i = 0; i < map.length; i++) {
-    //   Map<Object, Object> m = map[i];
-    //   var message = Message(
-    //     id: m[col_message_id],
-    //     timestamp: m[col_message_timestamp],
-    //     text: m[col_message_text],
-    //     groupDate: m[col_message_groupdate],
-    //     recipientNumber: m[col_message_recipient_number],
-    //     recipientName: m[col_message_recipient_name],
-    //     sender: m[col_message_sender],
-    //     backup: 'true',
-    //     isSelected: false,
-    //   );
-    //   await saveMessageWithID(message);
-    // }
   }
 
   Future createDb(Database db, int version) async {
@@ -248,6 +234,72 @@ class DbHelper {
       list.add(m);
     }
     return list;
+  }
+
+  Future<void> scheduleMessage(Message m) async {
+    Map<String, dynamic> params = {
+      col_message_id: m.id.toString(),
+      col_message_text: m.text,
+      col_message_timestamp: m.timestamp.toString(),
+      col_message_groupdate: m.groupDate,
+      col_message_recipient_number: m.recipientNumber,
+      col_message_recipient_name: m.recipientName,
+      col_message_sender: m.sender,
+      col_message_backup: m.backup,
+    };
+
+    try{
+      var uri = Uri.parse("${Constants.server_url}${Constants.api_url}/_schedule.php");
+      var response = await http.post(uri, body: params);
+      print(response.body.toString());
+      if(response.body == 'success'){
+        return true;
+      }
+      else{
+        showToast(response.body);
+        return false;
+      }
+    }
+    catch(e){
+      print("dbHelper.scheduleMessage: ${e.toString()}");
+      return false;
+    }
+  }
+
+  Future<void> deleteSchedule(Message m) async {
+    Map<String, dynamic> params = {
+      col_message_id: m.id,
+    };
+
+    try{
+      var uri = Uri.parse("${Constants.server_url}${Constants.api_url}/_deleteSchedule.php");
+      var response = await http.post(uri, body: params);
+      if(response.body == 'success'){
+        return true;
+      }
+      else{
+        showToast(response.body);
+        return false;
+      }
+    }
+    catch(e){
+      print("dbHelper.deleteSchedule: ${e.toString()}");
+      return false;
+    }
+  }
+
+  Future<void> deleteMessage(Message m) async {
+    if (m.timestamp > DateTime.now().millisecondsSinceEpoch) {
+      await deleteSchedule(m);
+    }
+    String device_id = await getDeviceId();
+    String hash = sha256.convert(utf8.encode(device_id)).toString();
+    Database db = await database;
+    await FirebaseDatabase.instance.ref().child(
+        "backups/$hash/${m.timestamp.toString()}").remove();
+
+    String query = "delete from $message_table where $col_message_id = ${m.id}";
+    await db.execute(query);
   }
 
 }
