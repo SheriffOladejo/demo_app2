@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 import 'package:demo_app2/utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -18,6 +17,9 @@ class DbHelper {
 
   static Database _database;
   static DbHelper helper;
+
+  String user_table = "user_table";
+  String col_phone_number = "phone_number";
 
   String message_table = "message_table";
   String col_message_id = "id";
@@ -45,7 +47,7 @@ class DbHelper {
   }
 
   Future<void> backup(List<Message> convos) async {
-    String device_id = await getDeviceId();
+    String device_id = await getPhone();
     String hash = sha256.convert(utf8.encode(device_id)).toString();
     Database db = await database;
     for (var j = 0; j < convos.length; j++) {
@@ -66,7 +68,7 @@ class DbHelper {
   }
 
   Future<void> restore() async {
-    String deviceId = await getDeviceId();
+    String deviceId = await getPhone();
     String hash = sha256.convert(utf8.encode(deviceId)).toString();
     final snapshot = await FirebaseDatabase.instance.ref().child('backups/$hash/').get();
     final list = snapshot.children;
@@ -97,13 +99,37 @@ class DbHelper {
         "$col_message_sender text,"
         "$col_message_backup varchar(10))";
 
+    String createUserTable = "create table $user_table ("
+        "$col_phone_number text)";
+
     await db.execute(createMessageTable);
+    await db.execute(createUserTable);
   }
 
   Future<Database> initializeDatabase() async{
     final db_path = await getDatabasesPath();
     final path = join(db_path, db_name);
     return await openDatabase(path, version: 1, onCreate: createDb);
+  }
+
+  Future<void> savePhoneNumber(String phone) async {
+    Database db = await database;
+    String query = "insert into $user_table ("
+        "$col_phone_number) values ('$phone')";
+    print("db_helper.savePhoneNumber query: $query");
+    await db.execute(query);
+  }
+
+  Future<String> getPhone() async {
+    String phone = "";
+    Database db = await database;
+    String query = "select * from $user_table";
+    List<Map<String, Object>> result = await db.rawQuery(query);
+    for (var i = 0; i < result.length; i++) {
+      phone = result[i][col_phone_number];
+    }
+    print("db_helper.getPhone phone: $phone");
+    return phone;
   }
 
   Future<void> saveMessage(Message message) async {
@@ -251,7 +277,6 @@ class DbHelper {
     try{
       var uri = Uri.parse("${Constants.server_url}${Constants.api_url}/_schedule.php");
       var response = await http.post(uri, body: params);
-      print(response.body.toString());
       if(response.body == 'success'){
         return true;
       }
@@ -292,7 +317,7 @@ class DbHelper {
     if (m.timestamp > DateTime.now().millisecondsSinceEpoch) {
       await deleteSchedule(m);
     }
-    String device_id = await getDeviceId();
+    String device_id = await getPhone();
     String hash = sha256.convert(utf8.encode(device_id)).toString();
     Database db = await database;
     await FirebaseDatabase.instance.ref().child(

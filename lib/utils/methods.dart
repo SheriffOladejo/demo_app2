@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:demo_app2/utils/hex_color.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -11,17 +8,6 @@ Widget loadingPage(){
 
     ),
   );
-}
-
-Future<String> getDeviceId() async {
-  var deviceInfo = DeviceInfoPlugin();
-  if (Platform.isIOS) { // import 'dart:io'
-    var iosDeviceInfo = await deviceInfo.iosInfo;
-    return iosDeviceInfo.identifierForVendor; // unique ID on iOS
-  } else {
-    var androidDeviceInfo = await deviceInfo.androidInfo;
-    return androidDeviceInfo.id; // unique ID on Android
-  }
 }
 
 Route slideLeft(Widget next) {

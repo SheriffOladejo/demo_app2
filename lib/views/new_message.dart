@@ -36,6 +36,8 @@ class _NewMessageState extends State<NewMessage> {
 
   var db_helper = DbHelper();
 
+  String sender = "";
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -136,11 +138,9 @@ class _NewMessageState extends State<NewMessage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  child: Image.asset('assets/images/clock.png'),
-                  onTap: () {
-
-                  },
+                const SizedBox(
+                  width: 15,
+                  height: 15,
                 ),
                 SizedBox(
                   width: 240,
@@ -190,6 +190,7 @@ class _NewMessageState extends State<NewMessage> {
       Permission.sms,
       Permission.contacts,
     ].request();
+    sender = await db_helper.getPhone();
     setState(() {
       isLoading = false;
     });
@@ -269,7 +270,7 @@ class _NewMessageState extends State<NewMessage> {
             recipientName: name,
             recipientNumber: selectedContact[i].contact.phones[0].value,
             timestamp: timestamp,
-            sender: "user",
+            sender: sender,
             groupDate: "",
             isSelected: false,
             backup: 'false'
@@ -291,7 +292,7 @@ class _NewMessageState extends State<NewMessage> {
           recipientName: name,
           recipientNumber: recipients[i],
           timestamp: timestamp,
-          sender: "user",
+          sender: sender,
           groupDate: "",
           isSelected: false,
           backup: 'false'

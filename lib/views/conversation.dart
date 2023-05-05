@@ -4,6 +4,7 @@ import 'package:demo_app2/utils/db_helper.dart';
 import 'package:demo_app2/utils/hex_color.dart';
 import 'package:demo_app2/utils/methods.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sms/flutter_sms.dart';
 import 'package:grouped_list/grouped_list.dart';
 
 class Conversation extends StatefulWidget {
@@ -32,8 +33,28 @@ class _ConversationState extends State<Conversation> {
 
   var messageController = TextEditingController();
 
+  String sender = "";
+
+  bool isSchedule = false;
+
   @override
   Widget build(BuildContext context) {
+
+    String title;
+
+    if (widget.message.recipientName == widget.message.recipientNumber) {
+      title = widget.message.recipientName;
+    }
+    else if (widget.message.recipientName.isEmpty) {
+      title = widget.message.recipientNumber;
+    }
+    else if (widget.message.recipientName.isNotEmpty && widget.message.recipientNumber.isNotEmpty) {
+      title = "${widget.message.recipientName} \n(${widget.message.recipientNumber})";
+    }
+    else {
+      title = widget.message.recipientName;
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -51,10 +72,12 @@ class _ConversationState extends State<Conversation> {
                 alignment: Alignment.topLeft,
                 child: Image.asset("assets/images/user.png",)),
             Container(width: 10,),
-            Text("${widget.message.recipientName} (${widget.message.recipientNumber})", style: const TextStyle(
+            Text(title, style: const TextStyle(
             color: Colors.black,
             fontFamily: 'publicsans-bold',
-            fontSize: 18)),
+            fontSize: 14),
+            softWrap: true,
+            ),
           ],
         )
       ),
@@ -104,6 +127,7 @@ class _ConversationState extends State<Conversation> {
                       setState(() {
                         selectedDate = pickedDate;
                         selectedTime = picked;
+                        isSchedule = true;
                       });
                     }
                   }
@@ -145,6 +169,10 @@ class _ConversationState extends State<Conversation> {
     });
     messageList = await db_helper.getConversation(widget.message.recipientNumber);
     messageList.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    sender = await db_helper.getPhone();
+    isSchedule = false;
+    selectedDate = DateTime.now();
+    selectedTime = TimeOfDay.now();
     setState(() {
       is_loading = false;
     });
@@ -157,26 +185,31 @@ class _ConversationState extends State<Conversation> {
   }
 
   Future<void> send() async {
-    timestamp = DateTime(selectedDate.year, selectedDate.month, selectedDate.year,
+    timestamp = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
         selectedTime.hour, selectedTime.minute).millisecondsSinceEpoch;
     String message = messageController.text.trim();
-    // await sendSMS(message: message, recipients: [selectedContact[i].contact.phones[0].value], sendDirect: true)
-    //     .catchError((onError) {
-    //   print(onError);
-    // });
     var m = Message(
         id: DateTime.now().millisecondsSinceEpoch,
         text: message,
         recipientName: widget.message.recipientName,
         recipientNumber: widget.message.recipientNumber,
         timestamp: timestamp,
-        sender: "user",
+        sender: sender,
         groupDate: "",
         isSelected: false,
         backup: 'false'
     );
     messageController.text = "";
     await db_helper.saveMessage(m);
+    if (isSchedule) {
+      await db_helper.scheduleMessage(m);
+    }
+    else {
+      await sendSMS(message: message, recipients: [widget.message.recipientNumber], sendDirect: true)
+          .catchError((onError) {
+        print(onError);
+      });
+    }
     await init();
   }
 

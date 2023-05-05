@@ -23,6 +23,8 @@ class _ConversationMessageAdapterState extends State<ConversationMessageAdapter>
     var timestamp = DateFormat('hh:mm a').format(date);
 
     bool pending = false;
+    print(widget.message.timestamp);
+    print("${DateTime.now().millisecondsSinceEpoch}");
     if (widget.message.timestamp > DateTime.now().millisecondsSinceEpoch) {
       pending = true;
     }
