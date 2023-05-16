@@ -33,7 +33,7 @@ class _BackupState extends State<Backup> {
           leading: GestureDetector(
             onTap: () async {
               await widget.callback();
-              Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
+              Navigator.pop(context);
             },
             child: const Icon(Icons.arrow_back, color: Colors.white,),
           ),
@@ -161,6 +161,7 @@ class _FirstTabState extends State<FirstTab> {
                 is_loading = false;
               });
               showToast("Messages backed up");
+              Navigator.pop(context);
             }
           },
           shape: const RoundedRectangleBorder(

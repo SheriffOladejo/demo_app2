@@ -111,7 +111,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     var db = DbHelper();
     String phone = await db.getPhone();
     if (phone.isNotEmpty) {
-      await Navigator.of(context).push(slideLeft(const HomeScreen()));
+      await Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
     }
     setState(() {
       isLoading = false;
@@ -225,6 +225,7 @@ class _PhoneDialogState extends State<PhoneDialog> {
           },
               (message) {
             showToast("Verification failed: $message");
+            print("Verification failed: $message");
             Navigator.pop(context);
           },
               (verificationId, forceResendingToken) {

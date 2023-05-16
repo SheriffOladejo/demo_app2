@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               showCupertinoModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
-                                expand: false,
+                                expand: true,
                                 builder: (context) => scheduleMessage(),
                               );
                             }
@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               showMaterialModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
-                                expand: false,
+                                expand: true,
                                 builder: (context) => scheduleMessage(),
                               );
                             }
@@ -246,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         shrinkWrap: true,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index){
-                          return MessageAdapter(message: conversations[index],);
+                          return MessageAdapter(message: conversations[index], callback: callback,);
                         },
                       ),
                     )
@@ -257,12 +257,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      bottomSheet: Container(
+        
+      ),
     );
   }
 
   Future<void> callback() async {
     conversations = await db_helper.getConversations();
     conversations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    setState(() {
+
+    });
   }
 
   Future<void> init() async {
@@ -291,10 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
     var date = DateFormat('MMMM dd, yyyy').format(selectedDate);
     final localizations = MaterialLocalizations.of(context);
     final formattedTimeOfDay = localizations.formatTimeOfDay(selectedTime);
-    return Form(
+    return is_loading ? loadingPage() : Form(
       key: form_key,
       child: Container(
         color: Colors.transparent,
+        margin: const EdgeInsets.only(top: 80),
         child: Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
@@ -344,6 +351,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           if (ccMissing) {
                             return "Country code is required";
                           }
+                          else if (value.isEmpty) {
+                            return "Required";
+                          }
                           return null;
                         },
                         keyboardType: TextInputType.phone,
@@ -388,6 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       alignment: Alignment.center,
                       child: MaterialButton(
                         onPressed: () async {
+                          Navigator.pop(context);
                           await send();
                         },
                         shape: const RoundedRectangleBorder(
@@ -448,9 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         lastDate: DateTime(2101));
                     if (picked != null && picked != selectedDate) {
                       setState(() {
-                        if (picked.millisecondsSinceEpoch > DateTime.now().millisecondsSinceEpoch) {
-                          selectedDate = picked;
-                        }
+                        selectedDate = picked;
                       });
                     }
                   },
@@ -523,8 +532,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> send() async {
     if (form_key.currentState.validate()) {
+      setState(() {
+        //is_loading = true;
+      });
       int timestamp = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
           selectedTime.hour, selectedTime.minute).millisecondsSinceEpoch;
+      DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+      String formattedDate = DateFormat('MMM d, y').format(date);
+      print("formatted dsate: $formattedDate");
       String message = messageController.text.trim();
       recipients = numberController.text.split(",");
       String name = "";
@@ -550,9 +565,10 @@ class _HomeScreenState extends State<HomeScreen> {
       else {
         for (var i = 0; i < recipients.length; i++) {
           name = recipients[i];
-          var timestamp = DateTime.now().millisecondsSinceEpoch;
           var m = Message(
-              id: DateTime.now().millisecondsSinceEpoch,
+              id: DateTime
+                  .now()
+                  .millisecondsSinceEpoch,
               text: message,
               recipientName: name,
               recipientNumber: recipients[i],
@@ -572,11 +588,10 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedTime = TimeOfDay.now();
       selectedDate = DateTime.now();
       conversations = await db_helper.getConversations();
-      conversations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       setState(() {
-
+        is_loading = false;
       });
-      Navigator.pop(context);
+      conversations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     }
   }
 

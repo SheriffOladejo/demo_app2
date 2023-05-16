@@ -9,9 +9,11 @@ import 'package:intl/intl.dart';
 class MessageAdapter extends StatelessWidget {
 
   Message message;
+  Function callback;
 
   MessageAdapter({
     this.message,
+    this.callback,
   });
 
   @override
@@ -22,7 +24,7 @@ class MessageAdapter extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(slideLeft(Conversation(message: message,)));
+        Navigator.of(context).push(slideLeft(Conversation(message: message, callback: callback,)));
       },
       child: SizedBox(
         width: MediaQuery.of(context).size.width,

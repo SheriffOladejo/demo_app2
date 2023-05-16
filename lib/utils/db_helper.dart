@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:demo_app2/models/message.dart';
 import 'package:demo_app2/utils/methods.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart';
@@ -133,6 +134,7 @@ class DbHelper {
   }
 
   Future<void> saveMessage(Message message) async {
+    print("db_helper.saveMessage timestamp ${message.timestamp.toString()}");
     Database db = await database;
     String query = "insert into $message_table ("
         "$col_message_id, $col_message_timestamp, $col_message_groupdate, $col_message_text, "
@@ -246,6 +248,10 @@ class DbHelper {
     String query = "select * from $message_table where $col_message_recipient_number = '$recipientNumber'";
     List<Map<String, Object>> result = await db.rawQuery(query);
     for (int i = 0; i < result.length; i++) {
+
+      DateTime date = DateTime.fromMillisecondsSinceEpoch(result[i][col_message_timestamp]);
+      String formattedDate = DateFormat('MMM d, y').format(date);
+
       var m = Message(
           isSelected: false,
           id: result[i][col_message_id],
@@ -254,9 +260,10 @@ class DbHelper {
           recipientName: result[i][col_message_recipient_name],
           text: result[i][col_message_text],
           sender: result[i][col_message_sender],
-          groupDate: result[i][col_message_groupdate],
+          groupDate: formattedDate,
           backup: result[i][col_message_backup],
       );
+      print("DbHelper.getConversation: message: ${m.text} groupdate: ${m.groupDate}");
       list.add(m);
     }
     return list;
@@ -293,7 +300,7 @@ class DbHelper {
 
   Future<void> deleteSchedule(Message m) async {
     Map<String, dynamic> params = {
-      col_message_id: m.id,
+      col_message_id: m.id.toString(),
     };
 
     try{

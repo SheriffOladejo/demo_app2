@@ -1,3 +1,6 @@
+import 'dart:collection';
+
+import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:demo_app2/adapters/conversation_message_adapter.dart';
 import 'package:demo_app2/models/message.dart';
 import 'package:demo_app2/utils/db_helper.dart';
@@ -5,13 +8,13 @@ import 'package:demo_app2/utils/hex_color.dart';
 import 'package:demo_app2/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sms/flutter_sms.dart';
-import 'package:grouped_list/grouped_list.dart';
 
 class Conversation extends StatefulWidget {
 
   Message message;
+  Function callback;
 
-  Conversation({this.message});
+  Conversation({this.message, this.callback});
 
   @override
   State<Conversation> createState() => _ConversationState();
@@ -21,6 +24,7 @@ class Conversation extends StatefulWidget {
 class _ConversationState extends State<Conversation> {
 
   List<Message> messageList = [];
+  List<Widget> messagesWidget = [];
 
   bool is_loading = false;
 
@@ -36,6 +40,50 @@ class _ConversationState extends State<Conversation> {
   String sender = "";
 
   bool isSchedule = false;
+
+  List<dynamic> getGroupDate() {
+    messagesWidget = [];
+    var groupDateList = [];
+    HashMap groupDateMessageMap = HashMap<String, List<Message>>();
+
+    for (var i = 0; i < messageList.length; i++) {
+      if (!groupDateList.contains(messageList[i].groupDate)) {
+        groupDateList.add(messageList[i].groupDate);
+      }
+    }
+
+    for (var i = 0; i < groupDateList.length; i++) {
+      for (var j = 0; j < messageList.length; j++) {
+        if (messageList[j].groupDate == groupDateList[i]) {
+          List<Message> list = groupDateMessageMap[groupDateList[i]];
+          if (list == null || list.isEmpty) {
+            groupDateMessageMap[groupDateList[i]] = [messageList[j]];
+          }
+          else {
+            list.add(messageList[j]);
+            groupDateMessageMap[groupDateList[i]] = list;
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < groupDateList.length; i++) {
+      List<Message> l = groupDateMessageMap[groupDateList[i]];
+      messagesWidget.add(DateChip(date: DateTime.fromMillisecondsSinceEpoch(l[0].timestamp)));
+      for (var j = 0; j < l.length; j++) {
+        bool last = false;
+        if (j == l.length-1) {
+          last = true;
+        }
+        messagesWidget.add(ConversationMessageAdapter(
+          last: last,
+          message: l[j],
+          callback: callback,
+        ));
+      }
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +109,13 @@ class _ConversationState extends State<Conversation> {
         elevation: 0,
         automaticallyImplyLeading: false,
         leading: GestureDetector(
-          onTap: () {
+          onTap: () async {
+            await widget.callback();
             Navigator.pop(context);
           },
-          child: const Icon(Icons.arrow_back, color: Colors.black,),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: const Icon(Icons.arrow_back, color: Colors.black,)),
         ),
         title: Row(
           children: [
@@ -81,22 +132,13 @@ class _ConversationState extends State<Conversation> {
           ],
         )
       ),
-      body: is_loading ? loadingPage() : GroupedListView<Message, String>(
-        elements: messageList,
-        groupBy: (message) => message.groupDate,
-        groupSeparatorBuilder: (String groupByValue) => Text(groupByValue),
-        groupComparator: (value1, value2) => value2.compareTo(value1),
-        indexedItemBuilder: (context, message, index) {
-          bool last = false;
-          if (index == messageList.length - 1) {
-            last = true;
-          }
-          return ConversationMessageAdapter(message: messageList[index], last: last,);
-        },
-        itemComparator: (m1, m2) => m1.timestamp.compareTo(m2.timestamp), // optional
-        useStickyGroupSeparators: true, // optional
-        floatingHeader: true, // optional
-        order: GroupedListOrder.ASC, // optional
+      body: is_loading ? loadingPage() : Padding(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: SingleChildScrollView(
+          child: Column(
+            children: messagesWidget
+          )
+        ),
       ),
       bottomSheet: Container(
         width: MediaQuery.of(context).size.width,
@@ -111,28 +153,30 @@ class _ConversationState extends State<Conversation> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              GestureDetector(
-                child: Image.asset('assets/images/clock.png'),
-                onTap: () async {
-                  final DateTime pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2101));
-                  if (pickedDate != null && pickedDate != selectedDate) {
-                    final TimeOfDay picked = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now());
-                    if (picked != null && picked != selectedTime) {
-                      setState(() {
-                        selectedDate = pickedDate;
-                        selectedTime = picked;
-                        isSchedule = true;
-                      });
-                    }
-                  }
-                },
-              ),
+              // GestureDetector(
+              //
+              //   child: Image.asset('assets/images/clock.png'),
+              //   onTap: () async {
+              //     final DateTime pickedDate = await showDatePicker(
+              //         context: context,
+              //         initialDate: selectedDate,
+              //         firstDate: DateTime.now(),
+              //         lastDate: DateTime(2101));
+              //     if (pickedDate != null && pickedDate != selectedDate) {
+              //       final TimeOfDay picked = await showTimePicker(
+              //           context: context,
+              //           initialTime: TimeOfDay.now());
+              //       if (picked != null && picked != selectedTime) {
+              //         setState(() {
+              //           selectedDate = pickedDate;
+              //           selectedTime = picked;
+              //           isSchedule = true;
+              //         });
+              //       }
+              //     }
+              //   },
+              // ),
+              Container(height: 1,),
               SizedBox(
                 width: 240,
                 child: TextField(
@@ -163,6 +207,14 @@ class _ConversationState extends State<Conversation> {
     );
   }
 
+  Future<void> callback() async {
+    messageList = await db_helper.getConversation(widget.message.recipientNumber);
+    messageList.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    setState(() {
+      is_loading = false;
+    });
+  }
+
   Future<void> init() async {
     setState(() {
       is_loading = true;
@@ -173,6 +225,7 @@ class _ConversationState extends State<Conversation> {
     isSchedule = false;
     selectedDate = DateTime.now();
     selectedTime = TimeOfDay.now();
+    getGroupDate();
     setState(() {
       is_loading = false;
     });

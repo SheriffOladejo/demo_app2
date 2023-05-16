@@ -48,7 +48,8 @@ class _NewMessageState extends State<NewMessage> {
           elevation: 0,
           automaticallyImplyLeading: false,
           leading: GestureDetector(
-            onTap: () {
+            onTap: () async {
+              await widget.callback();
               Navigator.pop(context);
             },
             child: const Icon(Icons.arrow_back, color: Colors.black,),
@@ -75,14 +76,25 @@ class _NewMessageState extends State<NewMessage> {
                       child: TextFormField(
                         controller: numberController,
                         validator: (value) {
-                          if (value.isEmpty) {
+                          bool ccMissing = false;
+                          List<String> list = numberController.text.split(",");
+                          for (var i = 0; i < list.length; i++) {
+                            if (list[i].replaceAll(" ", "").substring(0, 1) != "+") {
+                              ccMissing = true;
+                            }
+                          }
+                          if (ccMissing) {
+                            return "Country code is required";
+                          }
+                          else if (value.isEmpty) {
                             return "Select contact";
                           }
+
                           return null;
                         },
                         minLines: 1,
                         maxLines: 10,
-                        keyboardType: TextInputType.number,
+                        keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                           hintText: "Enter recipient's phone number",
                           hintStyle: const TextStyle(
@@ -138,16 +150,36 @@ class _NewMessageState extends State<NewMessage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(
-                  width: 15,
-                  height: 15,
-                ),
+                // GestureDetector(
+                //
+                //   child: Image.asset('assets/images/clock.png'),
+                //   onTap: () async {
+                //     final DateTime pickedDate = await showDatePicker(
+                //         context: context,
+                //         initialDate: selectedDate,
+                //         firstDate: DateTime.now(),
+                //         lastDate: DateTime(2101));
+                //     if (pickedDate != null && pickedDate != selectedDate) {
+                //       final TimeOfDay picked = await showTimePicker(
+                //           context: context,
+                //           initialTime: TimeOfDay.now());
+                //       if (picked != null && picked != selectedTime) {
+                //         setState(() {
+                //           selectedDate = pickedDate;
+                //           selectedTime = picked;
+                //           isSchedule = true;
+                //         });
+                //       }
+                //     }
+                //   },
+                // ),
+                Container(height: 1,),
                 SizedBox(
                   width: 240,
                   child: TextFormField(
                     validator: (value) {
                       if (value.isEmpty) {
-                        return "Cannot be empty";
+                        return "Required";
                       }
                       return null;
                     },
@@ -259,10 +291,10 @@ class _NewMessageState extends State<NewMessage> {
     if (selectedContact.isNotEmpty) {
       for (var i = 0; i < selectedContact.length; i++) {
         name = selectedContact[i].contact.displayName ?? selectedContact[i].contact.phones[0].value;
-        // await sendSMS(message: message, recipients: [selectedContact[i].contact.phones[0].value], sendDirect: true)
-        //     .catchError((onError) {
-        //   print(onError);
-        // });
+        await sendSMS(message: message, recipients: [selectedContact[i].contact.phones[0].value.replaceAll(" ", "")], sendDirect: true)
+            .catchError((onError) {
+          print(onError);
+        });
         var timestamp = DateTime.now().millisecondsSinceEpoch;
         var m = Message(
             id: timestamp,
@@ -281,10 +313,10 @@ class _NewMessageState extends State<NewMessage> {
     else {
       for (var i = 0; i < recipients.length; i++) {
         name = recipients[i];
-        // await sendSMS(message: message, recipients: [recipients[i]], sendDirect: true)
-        //     .catchError((onError) {
-        //   print(onError);
-        // });
+        await sendSMS(message: message, recipients: [recipients[i]], sendDirect: true)
+            .catchError((onError) {
+          print(onError);
+        });
         var timestamp = DateTime.now().millisecondsSinceEpoch;
         var m = Message(
           id: timestamp,

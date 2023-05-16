@@ -1,4 +1,6 @@
 import 'package:demo_app2/models/message.dart';
+import 'package:demo_app2/utils/db_helper.dart';
+import 'package:demo_app2/utils/methods.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:intl/intl.dart';
@@ -7,7 +9,8 @@ class ConversationMessageAdapter extends StatefulWidget {
 
   Message message;
   bool last;
-  ConversationMessageAdapter({this.message, this.last});
+  Function callback;
+  ConversationMessageAdapter({this.callback, this.message, this.last});
 
   @override
   State<ConversationMessageAdapter> createState() => _ConversationMessageAdapterState();
@@ -23,40 +26,81 @@ class _ConversationMessageAdapterState extends State<ConversationMessageAdapter>
     var timestamp = DateFormat('hh:mm a').format(date);
 
     bool pending = false;
-    print(widget.message.timestamp);
-    print("${DateTime.now().millisecondsSinceEpoch}");
     if (widget.message.timestamp > DateTime.now().millisecondsSinceEpoch) {
       pending = true;
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        BubbleSpecialThree(
-          text: widget.message.text,
-          color: const Color(0xFF1B97F3),
-          tail: widget.last,
-          isSender: true,
-          sent: true,
-          textStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 16
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-                padding: const EdgeInsets.only(right: 5),
-                child: Text(timestamp, style: const TextStyle(color: Colors.grey, fontFamily: 'publicsans-regular', fontSize: 10),)
+    return GestureDetector(
+      onTap: () {
+        showOptionsDialog(context);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          BubbleSpecialThree(
+            text: widget.message.text,
+            color: const Color(0xFF1B97F3),
+            tail: widget.last,
+            isSender: true,
+            sent: true,
+            textStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 16
             ),
-            pending ? Image.asset('assets/images/clock.png') : Container(),
-            Container(width: 10,),
-          ],
-        )
-      ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: Text(timestamp, style: const TextStyle(color: Colors.grey, fontFamily: 'publicsans-regular', fontSize: 10),)
+              ),
+              pending ? Image.asset('assets/images/clock.png') : Container(),
+              Container(width: 10,),
+            ],
+          ),
+          Container(height: 5,),
+        ],
+      ),
     );
 
   }
+
+  showOptionsDialog(BuildContext context){
+    AlertDialog d = AlertDialog(
+      title: const Text("Select an option"),
+      content: Container(
+        padding: const EdgeInsets.all(5.0),
+        height: 60,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(height: 5,),
+            GestureDetector(
+              onTap: () async {
+                var db = DbHelper();
+                showToast("Deleting message, please wait");
+                await db.deleteMessage(widget.message);
+                await widget.callback();
+                Navigator.pop(context);
+              },
+              child: Container(
+                alignment: Alignment.centerLeft,
+                child: const Text("Delete message"),
+              ),
+            ),
+            Container(height: 5,),
+          ],
+        ),
+      ),
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return d;
+      },
+    );
+  }
+
 
 }

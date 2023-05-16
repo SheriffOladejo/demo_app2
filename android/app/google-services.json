@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "422839437989",
+    "firebase_url": "https://smsapp-328f9-default-rtdb.firebaseio.com",
     "project_id": "smsapp-328f9",
     "storage_bucket": "smsapp-328f9.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "422839437989-7ne6eum61d9aj9joahpdkke80hojroec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.olan.demo_app2",
+            "certificate_hash": "3f0628a1c6d2d71d58dbe4c2c670d2d1f15283f0"
+          }
+        },
         {
           "client_id": "422839437989-ev0ri4p14gmc933innbtpvjtnven2ord.apps.googleusercontent.com",
           "client_type": 3
