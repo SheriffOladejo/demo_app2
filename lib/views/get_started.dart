@@ -65,38 +65,37 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 fontFamily: 'publicsans-regular',
                 fontSize: 16,
               ),),
-              const SizedBox(height: 100,),
-              Container(
-                width: 190,
-                margin: const EdgeInsets.only(bottom: 15,),
-                alignment: Alignment.center,
-                child: ElevatedButton(
-                  onPressed: () {
-                    showAlertDialog(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    backgroundColor: HexColor("#4897FA"),
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                  ),
-                  child:
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text(
-                        "Get started",
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontFamily: 'publicsans-bold'
-                        ),
-                      ),
-                    ],
-                  ),
+            ],
+          ),
+        ),
+      ),
+      bottomSheet: Container(
+        width: 190,
+        margin: const EdgeInsets.only(bottom: 15,),
+        alignment: Alignment.center,
+        child: ElevatedButton(
+          onPressed: () {
+            showAlertDialog(context);
+          },
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            backgroundColor: HexColor("#4897FA"),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+          ),
+          child:
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text(
+                "Get started",
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontFamily: 'publicsans-bold'
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -111,7 +110,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     var db = DbHelper();
     String phone = await db.getPhone();
     if (phone.isNotEmpty) {
-      await Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
+      Navigator.of(context).pushReplacement(slideLeft(const HomeScreen()));
     }
     setState(() {
       isLoading = false;

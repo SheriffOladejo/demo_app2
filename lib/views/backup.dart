@@ -132,7 +132,7 @@ class _FirstTabState extends State<FirstTab> {
         ),
         Container(height: 10,),
         SizedBox(
-          height: MediaQuery.of(context).size.height - 260,
+          height: MediaQuery.of(context).size.height - 290,
           child: ListView.separated(
             separatorBuilder: (context, index) {
               return const Divider();

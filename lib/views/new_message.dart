@@ -175,7 +175,7 @@ class _NewMessageState extends State<NewMessage> {
                 // ),
                 Container(height: 1,),
                 SizedBox(
-                  width: 240,
+                  width: MediaQuery.of(context).size.width - 100,
                   child: TextFormField(
                     validator: (value) {
                       if (value.isEmpty) {

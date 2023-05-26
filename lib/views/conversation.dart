@@ -178,7 +178,7 @@ class _ConversationState extends State<Conversation> {
               // ),
               Container(height: 1,),
               SizedBox(
-                width: 240,
+                width: MediaQuery.of(context).size.width - 100,
                 child: TextField(
                   controller: messageController,
                   minLines: 1,

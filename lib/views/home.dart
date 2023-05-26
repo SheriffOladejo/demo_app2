@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:math';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:demo_app2/adapters/message_adapter.dart';
 import 'package:demo_app2/models/message.dart';
 import 'package:demo_app2/utils/db_helper.dart';
@@ -47,10 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:is_loading ? loadingPage() : SingleChildScrollView(
+      body:is_loading ? loadingPage() :
+      SingleChildScrollView(
         child: SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
               Container(
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Container(height: 15,),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
                           onTap: () {
@@ -115,18 +115,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               showCupertinoModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
-                                expand: true,
+                                expand: false,
                                 builder: (context) => scheduleMessage(),
                               );
                             }
-                            else if (Platform.isAndroid) {
-                              showMaterialModalBottomSheet(
-                                backgroundColor: Colors.transparent,
-                                context: context,
-                                expand: true,
-                                builder: (context) => scheduleMessage(),
-                              );
-                            }
+                            // else if (Platform.isAndroid) {
+                            //   showMaterialModalBottomSheet(
+                            //     backgroundColor: Colors.transparent,
+                            //     context: context,
+                            //     expand: false,
+                            //     builder: (context) => scheduleMessage(),
+                            //   );
+                            // }
                           },
                           child: Container(
                             width: 155,
@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Container(height: 15,),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
                           onTap: () {
@@ -236,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     SizedBox(
-                      height: MediaQuery.of(context).size.height - 410,
+                      height: MediaQuery.of(context).size.height / 2,
                       child: ListView.separated(
                         separatorBuilder: (context, index) {
                           return const Divider();
@@ -249,7 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           return MessageAdapter(message: conversations[index], callback: callback,);
                         },
                       ),
-                    )
+                    ),
+                    Container(height: 50,)
                   ],
                 ),
               ),
@@ -258,7 +259,75 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomSheet: Container(
-        
+          height: 50,
+          alignment: Alignment.centerLeft,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    "Before using this app, you can review our",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'solata-regular',
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      var url = "https://docs.google.com/document/d/1_WrY9nSwO-yQbsnL_hcYq2tSQ60-7nRECuYFE6bvnpQ/edit?usp=sharing";
+                      if(await canLaunch(url)){
+                        await launch(url);
+                      }
+                      else{
+                        showToast("Cannot launch URL");
+                      }
+                    },
+                    child: const Text(
+                      "privacy policy ",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'solata-regular',
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    "and ",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'solata-regular',
+                      color: Colors.black,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      var url = "https://docs.google.com/document/d/1NMvhNmQ7DksCYhOblkegA9NSCigiK9vGNclQJN9uAW8/edit?usp=sharing";
+                      if(await canLaunch(url)){
+                        await launch(url);
+                      }
+                      else{
+                        showToast("Cannot launch URL");
+                      }
+                    },
+                    child: const Text(
+                      "terms of use. ",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'solata-regular',
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],)
       ),
     );
   }
@@ -297,232 +366,246 @@ class _HomeScreenState extends State<HomeScreen> {
     var date = DateFormat('MMMM dd, yyyy').format(selectedDate);
     final localizations = MaterialLocalizations.of(context);
     final formattedTimeOfDay = localizations.formatTimeOfDay(selectedTime);
-    return is_loading ? loadingPage() : Form(
-      key: form_key,
-      child: Container(
-        color: Colors.transparent,
-        margin: const EdgeInsets.only(top: 80),
+    return is_loading ? loadingPage() :
+    Scaffold(
+      backgroundColor: Colors.white,
+      body: Form(
+        key: form_key,
         child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(15),
-              topLeft: Radius.circular(15),
-            ),
-            color: HexColor("#E1F7FE"),
-          ),
+          color: Colors.transparent,
+          margin: const EdgeInsets.only(top: 0),
           child: Container(
-            padding: const EdgeInsets.all(10),
+            height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(15),
                 topLeft: Radius.circular(15),
-              )
+              ),
+              color: HexColor("#E1F7FE"),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(height: 25,),
-                const Text("Schedule message", style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontFamily: 'publicsans-regular',
-                ),),
-                Container(height: 15,),
-                const Text("Schedule message to be sent at a later date and time"),
-                Container(height: 30,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 200,
-                      child: TextFormField(
-                        validator: (value) {
-                          bool ccMissing = false;
-                          List<String> list = value.split(",");
-                          for (var i = 0; i < list.length; i++) {
-                            if (list[i].substring(0, 1) != "+") {
-                              ccMissing = true;
-                            }
-                          }
-                          if (ccMissing) {
-                            return "Country code is required";
-                          }
-                          else if (value.isEmpty) {
-                            return "Required";
-                          }
-                          return null;
-                        },
-                        keyboardType: TextInputType.phone,
-                        controller: numberController,
-                        minLines: 1,
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                          prefixIcon: GestureDetector(
-                            onTap: () async {
-                              selectedContact = await Navigator.push(context, MaterialPageRoute(builder: (context) => const SelectContacts()));
-                              numberController.text = "";
-                              for (int i = 0; i < selectedContact.length; i++) {
-                                if (selectedContact[i].contact.phones.isNotEmpty) {
-                                  if (i == selectedContact.length - 1) {
-                                    numberController.text += selectedContact[i].contact.phones[0].value;
-                                  }
-                                  else {
-                                    numberController.text += "${selectedContact[i].contact.phones[0].value}, ";
-                                  }
-                                  recipients.add(selectedContact[i].contact.phones[0].value);
-                                }
-                              }
-                              setState(() {
-
-                              });
-                            },
-                              child: const Icon(Icons.contact_phone)
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                                color: Colors.grey
-                            ),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          hintStyle: TextStyle(color: Colors.grey[800]),
-                          hintText: "Recipient phone",
-                        ),
-                      ),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              width: MediaQuery.of(context).size.width,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(15),
+                  topLeft: Radius.circular(15),
+                )
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(height: 5,),
+                  Container(
+                    width: 100,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.all(Radius.circular(5))
                     ),
-                    Container(
-                      width: 100,
-                      alignment: Alignment.center,
-                      child: MaterialButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          await send();
-                        },
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                        color: HexColor("#4897FA"),
-                        child:
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Send",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                  fontFamily: 'publicsans-bold'
-                              ),
-                            ),
-                            Container(width: 5,),
-                            Image.asset("assets/images/send.png", width: 20, height: 20,),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Container(height: 20),
-                TextFormField(
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "Message is required";
-                    }
-                    return null;
-                  },
-                  controller: messageController,
-                  minLines: 1,
-                  maxLines: 20,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: Colors.grey
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    hintStyle: TextStyle(color: Colors.grey[800]),
-                    hintText: "Type in your message",
                   ),
-                ),
-                Container(height: 20,),
-                InkWell(
-                  onTap: () async {
-                    final DateTime picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime(2101));
-                    if (picked != null && picked != selectedDate) {
-                      setState(() {
-                        selectedDate = picked;
-                      });
-                    }
-                  },
-                  child: Row(
+                  Container(height: 25,),
+                  const Text("Schedule message", style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'publicsans-regular',
+                  ),),
+                  Container(height: 15,),
+                  const Text("Schedule message to be sent at a later date and time"),
+                  Container(height: 30,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.calendar_month, size: 24, color: Colors.grey,),
-                      Container(width: 15,),
-                      Column(
-                        children: [
-                          const Text("Select date", style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'publicsans-regular',
-                            fontSize: 10
-                          ),),
-                          Container(height: 5,),
-                          Text(date, style: const TextStyle(
-                              color: Colors.grey,
-                              fontFamily: 'publicsans-regular',
-                              fontSize: 8
-                          ),),
-                        ],
+                      SizedBox(
+                        width: 200,
+                        child: TextFormField(
+                          validator: (value) {
+                            bool ccMissing = false;
+                            List<String> list = value.split(",");
+                            for (var i = 0; i < list.length; i++) {
+                              if (list[i].substring(0, 1) != "+") {
+                                ccMissing = true;
+                              }
+                            }
+                            if (ccMissing) {
+                              return "Country code is required";
+                            }
+                            else if (value.isEmpty) {
+                              return "Required";
+                            }
+                            return null;
+                          },
+                          keyboardType: TextInputType.phone,
+                          controller: numberController,
+                          minLines: 1,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            prefixIcon: GestureDetector(
+                              onTap: () async {
+                                selectedContact = await Navigator.push(context, MaterialPageRoute(builder: (context) => const SelectContacts()));
+                                numberController.text = "";
+                                for (int i = 0; i < selectedContact.length; i++) {
+                                  if (selectedContact[i].contact.phones.isNotEmpty) {
+                                    if (i == selectedContact.length - 1) {
+                                      numberController.text += selectedContact[i].contact.phones[0].value;
+                                    }
+                                    else {
+                                      numberController.text += "${selectedContact[i].contact.phones[0].value}, ";
+                                    }
+                                    recipients.add(selectedContact[i].contact.phones[0].value);
+                                  }
+                                }
+                                setState(() {
+
+                                });
+                              },
+                                child: const Icon(Icons.contact_phone)
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.grey
+                              ),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            hintStyle: TextStyle(color: Colors.grey[800]),
+                            hintText: "Recipient phone",
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 100,
+                        alignment: Alignment.center,
+                        child: MaterialButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await send();
+                          },
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          color: HexColor("#4897FA"),
+                          child:
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Send",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontFamily: 'publicsans-bold'
+                                ),
+                              ),
+                              Container(width: 5,),
+                              Image.asset("assets/images/send.png", width: 20, height: 20,),
+                            ],
+                          ),
+                        ),
                       )
                     ],
                   ),
-                ),
-                const Divider(color: Colors.blue,),
-                Container(height: 10,),
-                InkWell(
-                  onTap: () async {
-                    final TimeOfDay picked = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now());
-                    if (picked != null && picked != selectedTime) {
-                      setState(() {
-                        selectedTime = picked;
-                      });
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      const Icon(Icons.access_time_rounded, size: 24, color: Colors.grey,),
-                      Container(width: 15,),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Select time", style: TextStyle(
+                  Container(height: 20),
+                  TextFormField(
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Message is required";
+                      }
+                      return null;
+                    },
+                    controller: messageController,
+                    minLines: 1,
+                    maxLines: 20,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: Colors.grey
+                        ),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      hintStyle: TextStyle(color: Colors.grey[800]),
+                      hintText: "Type in your message",
+                    ),
+                  ),
+                  Container(height: 20,),
+                  InkWell(
+                    onTap: () async {
+                      final DateTime picked = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2101));
+                      if (picked != null && picked != selectedDate) {
+                        setState(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_month, size: 24, color: Colors.grey,),
+                        Container(width: 15,),
+                        Column(
+                          children: [
+                            const Text("Select date", style: TextStyle(
                               color: Colors.black,
                               fontFamily: 'publicsans-regular',
                               fontSize: 10
-                          ),),
-                          Container(height: 5,),
-                          Text(formattedTimeOfDay, style: const TextStyle(
-                              color: Colors.grey,
-                              fontFamily: 'publicsans-regular',
-                              fontSize: 8
-                          ),),
-                        ],
-                      )
-                    ],
+                            ),),
+                            Container(height: 5,),
+                            Text(date, style: const TextStyle(
+                                color: Colors.grey,
+                                fontFamily: 'publicsans-regular',
+                                fontSize: 8
+                            ),),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                const Divider(color: Colors.blue,),
-              ],
+                  const Divider(color: Colors.blue,),
+                  Container(height: 10,),
+                  InkWell(
+                    onTap: () async {
+                      final TimeOfDay picked = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now());
+                      if (picked != null && picked != selectedTime) {
+                        setState(() {
+                          selectedTime = picked;
+                        });
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.access_time_rounded, size: 24, color: Colors.grey,),
+                        Container(width: 15,),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Select time", style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: 'publicsans-regular',
+                                fontSize: 10
+                            ),),
+                            Container(height: 5,),
+                            Text(formattedTimeOfDay, style: const TextStyle(
+                                color: Colors.grey,
+                                fontFamily: 'publicsans-regular',
+                                fontSize: 8
+                            ),),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  const Divider(color: Colors.blue,),
+                ],
+              ),
             ),
           ),
         ),
